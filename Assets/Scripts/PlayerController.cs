@@ -7,8 +7,11 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 10.0f;
     [SerializeField] private float rotateSpeed = 720;
+    [SerializeField] ParticleSystem feedParticles;
+    [SerializeField] AudioClip pickupSound;
     [SerializeField] GameObject feedAndEggsControlHint;
     [SerializeField] GameObject shopControlHint;
+    AudioSource playerSound;
 
     float horizontalInput;
     float verticalInput;
@@ -20,8 +23,9 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        gameManager = GameManager.Instance;
         playerAnimator = GetComponentInChildren<Animator>();
+        playerSound = GetComponent<AudioSource>();
+        gameManager = GameManager.Instance;
     }
 
 
@@ -79,7 +83,12 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Feed"))
         {
             other.gameObject.SetActive(false);
+            feedParticles.transform.position = other.gameObject.transform.position;
             gameManager.FeedCount += 1;
+
+            // sounds & effects
+            feedParticles.Play();
+            playerSound.PlayOneShot(pickupSound);
         }
     }
 

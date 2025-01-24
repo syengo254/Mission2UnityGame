@@ -56,8 +56,8 @@ public class SpawnManager : MonoBehaviour
 
     Vector3 GetFeedSpawnPosition()
     {
-        float randomX = Random.Range(3, 8.5f);
-        float randomZ = Random.Range(0.5f, 6.5f);
+        float randomX = Random.Range(-1, 8.5f);
+        float randomZ = Random.Range(-3.5f, 6.5f);
 
         return new Vector3(randomX, 15.0f, randomZ);
     }
@@ -71,7 +71,7 @@ public class SpawnManager : MonoBehaviour
         startCollectionButton.SetActive(false);
 
         StartCoroutine(CountDownFeedCollectionTime());
-        collectionTimerText.SetText($"Remaining Time: {feedCollectionTime} sec");
+        collectionTimerText.SetText($"Collect Time: {feedCollectionTime} sec");
         collectionTimerText.enabled = true;
     }
 
@@ -81,7 +81,7 @@ public class SpawnManager : MonoBehaviour
         {
             yield return new WaitForSeconds(1.0f);
             feedCollectionTime --;
-            collectionTimerText.SetText($"Remaining Time: {feedCollectionTime} sec");
+            collectionTimerText.SetText($"Collect Time: {feedCollectionTime} sec");
 
             if(feedCollectionTime == 0)
             {
