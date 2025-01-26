@@ -5,10 +5,10 @@ using UnityEngine;
 public class Chicken : MonoBehaviour
 {   
     GameManager gameManager;
+    public float healthDamageRate = 8;
     void Start()
     {
         gameManager = GameManager.Instance;
-        StartHealthDepletion();
     }
 
     
@@ -20,7 +20,7 @@ public class Chicken : MonoBehaviour
         }
     }
 
-    void StartHealthDepletion()
+    public void StartHealthDepletion()
     {
         // StopCoroutine(DissipateHealth());
         StartCoroutine(DissipateHealth());
@@ -30,7 +30,7 @@ public class Chicken : MonoBehaviour
     {
         while(!gameManager.gameOver)
         {
-            yield return new WaitForSeconds(7.5f);
+            yield return new WaitForSeconds(healthDamageRate);
             gameManager.DamageChicken();
         }
     }

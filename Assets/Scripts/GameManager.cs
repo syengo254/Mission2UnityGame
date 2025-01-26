@@ -14,10 +14,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject startScreenCanvas;
     public TextMeshProUGUI healthText;
     public bool gameOver;
+    public bool gameStarted;
 
     public static GameManager Instance { get; private set; }
     private int feedHealthPoints = 5;
     private int maxChickenHealth = 100;
+    private int chickenDamageAmt = 10;
     private float eggLayInterval = 20;
     private decimal eggSellPrice = 2.5m;
     private decimal playerCash = 0;
@@ -64,7 +66,7 @@ public class GameManager : MonoBehaviour
         set
         {
             feedCount = value;
-            feedCountText.SetText($"Feed collected: {feedCount}");
+            feedCountText.SetText($"Feed collected: <b>{feedCount}</b>");
         }
     }
 
@@ -80,7 +82,14 @@ public class GameManager : MonoBehaviour
         set
         {
             chickenHealth = value;
-            healthText.SetText($"Chick health: {chickenHealth}");
+            if (chickenHealth < 40)
+            {
+                healthText.SetText($"Chick health: <color=#ee0000>{chickenHealth}</color>");
+            }
+            else
+            {
+                healthText.SetText($"Chick health: {chickenHealth}");
+            }
         }
     }
 
@@ -98,7 +107,6 @@ public class GameManager : MonoBehaviour
         Eggs = 0;
         Cash = 0;
         startScreenCanvas.SetActive(true);
-        InvokeRepeating(nameof(LayEgg), eggLayInterval, eggLayInterval);
     }
 
 
@@ -122,7 +130,7 @@ public class GameManager : MonoBehaviour
 
     void LayEgg()
     {
-        if (!gameOver)
+        if (!gameOver && gameStarted)
         {
             Eggs++;
         }
@@ -130,12 +138,12 @@ public class GameManager : MonoBehaviour
 
     public void DamageChicken()
     {
-        ChickenHealth = Mathf.Clamp(ChickenHealth - 10, 0, 100);
+        ChickenHealth = Mathf.Clamp(ChickenHealth - chickenDamageAmt, 0, 100);
     }
 
     public void SellEggs()
     {
-        if(gameOver) return;
+        if (gameOver) return;
 
         Cash += eggSellPrice * Eggs;
         Eggs = 0;
@@ -149,13 +157,21 @@ public class GameManager : MonoBehaviour
         gameOverCanvas.SetActive(true);
     }
 
-    public void HideStartScreen()
+    public void StartTheGame()
     {
         startScreenCanvas.SetActive(false);
+        gameStarted = true;
+        AudioSource gameAudio = Camera.main.GetComponent<AudioSource>();
+        Chicken chickenScript = GameObject.Find("Chicken").GetComponent<Chicken>();
+        chickenScript.StartHealthDepletion();
+        InvokeRepeating(nameof(LayEgg), eggLayInterval, eggLayInterval);
+        gameAudio.enabled = true;
     }
 
     public void RestartGame()
     {
+        StopAllCoroutines();
+        CancelInvoke();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

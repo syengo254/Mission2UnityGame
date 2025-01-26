@@ -17,26 +17,27 @@ public class SpawnManager : MonoBehaviour
     private float chickenSpawnInterval = 3;
     ObjectPooler feedPooler;
 
-    private void Awake() {
+    private void Awake()
+    {
         Instance = this;
     }
-    
+
     void Start()
     {
         feedPooler = ObjectPooler.Instance;
-        InvokeRepeating(nameof(SpawnChickenFeed), 1, chickenSpawnInterval);
     }
-    
+
     void Update()
     {
-        if(GameManager.Instance.gameOver){
+        if (GameManager.Instance.gameOver)
+        {
             CancelInvoke();
             StopCoroutine(CountDownFeedCollectionTime());
             startCollectionButton.SetActive(false);
             Destroy(this);
         }
 
-        if(!GameManager.Instance.gameOver && Input.GetKeyDown(KeyCode.Space) && !startSpawningFeeds)
+        if (!GameManager.Instance.gameOver && Input.GetKeyDown(KeyCode.Space) && !startSpawningFeeds)
         {
             StartCollectingFeeds();
         }
@@ -44,10 +45,11 @@ public class SpawnManager : MonoBehaviour
 
     void SpawnChickenFeed()
     {
-        if(!startSpawningFeeds) return;
+        if (!startSpawningFeeds) return;
 
         GameObject item = feedPooler.GetItem();
-        if(item != null){
+        if (item != null)
+        {
             item.transform.position = GetFeedSpawnPosition();
             item.GetComponent<Feed>().isGrounded = false;
             item.SetActive(true);
@@ -64,26 +66,36 @@ public class SpawnManager : MonoBehaviour
 
     public void StartCollectingFeeds()
     {
-        if(GameManager.Instance.gameOver) return;
-        
+        if (GameManager.Instance.gameOver) return;
+
+        CancelInvoke(nameof(SpawnChickenFeed));
+
         startSpawningFeeds = true;
         feedCollectionTime = Random.Range(25, 45);
         startCollectionButton.SetActive(false);
+        InvokeRepeating(nameof(SpawnChickenFeed), 0, chickenSpawnInterval);
 
         StartCoroutine(CountDownFeedCollectionTime());
-        collectionTimerText.SetText($"Collect Time: {feedCollectionTime} sec");
+        collectionTimerText.SetText($"Collect Time: <b>{feedCollectionTime} sec</b>");
         collectionTimerText.enabled = true;
     }
 
     IEnumerator CountDownFeedCollectionTime()
     {
-        while(startSpawningFeeds && !GameManager.Instance.gameOver)
+        while (startSpawningFeeds && !GameManager.Instance.gameOver)
         {
             yield return new WaitForSeconds(1.0f);
-            feedCollectionTime --;
-            collectionTimerText.SetText($"Collect Time: {feedCollectionTime} sec");
+            feedCollectionTime--;
+            if (feedCollectionTime <= 10)
+            {
+                collectionTimerText.SetText($"Collect Time: <color=#ee0000>{feedCollectionTime} sec</color>");
+            }
+            else
+            {
+                collectionTimerText.SetText($"Collect Time: {feedCollectionTime} sec");
+            }
 
-            if(feedCollectionTime == 0)
+            if (feedCollectionTime == 0)
             {
                 startSpawningFeeds = false;
                 startCollectionButton.SetActive(true);

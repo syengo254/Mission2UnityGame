@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] AudioClip pickupSound;
     [SerializeField] GameObject feedAndEggsControlHint;
     [SerializeField] GameObject shopControlHint;
+    [SerializeField] GameObject collectPopupText;
     AudioSource playerSound;
 
     float horizontalInput;
@@ -89,7 +90,18 @@ public class PlayerController : MonoBehaviour
             // sounds & effects
             feedParticles.Play();
             playerSound.PlayOneShot(pickupSound);
+
+            // popup text
+            GameObject popupText = Instantiate(collectPopupText, transform.position - new Vector3(0, 0.5f, 0), collectPopupText.transform.rotation);
+            popupText.SetActive(true);
+            Animator popupTextAnimator = popupText.GetComponent<Animator>();
+            popupTextAnimator.SetTrigger("Popup");
         }
+    }
+
+    public void DeactivateTextPopup()
+    {
+        collectPopupText.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider other) {
